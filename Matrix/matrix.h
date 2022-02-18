@@ -32,7 +32,7 @@ class nmMatrixN
 
     private:
         //scanner: let nth row and mth columns of a matrix gives me position into array
-        int GetPosition (int rows, int cols);
+        int GetPosition (int row, int col);
     private:
         T *matrixData; //object where it saves information
         int N_Rows, M_Cols, NM_Elements;
@@ -93,20 +93,63 @@ nmMatrixN<T>::~nmMatrixN (){
     }
 }
 
-// ####################### Some elemental funcrions #######################
+// ####################### Some elemental functions #######################
 
+//wipe out and generate a new matrix with different dimension
 template <class T>
-bool resize (int newRows, int newCols){
+bool nmMatrixN<T>::resize (int newRows, int newCols){
     N_Rows = newRows;
     M_Cols = newCols;
     NM_Elements = N_Rows*M_Cols;
     delete[] matrixData;
-    matrixData = new T [NM_Elements]
+    matrixData = new T [NM_Elements];
     if (matrixData != nullptr){
         for(unsigned int ii = 0 ; ii < NM_Elements ; ii++){
-            da
-        }
+            matrixData[ii] = 0.0; }
+
+        return true;
     }
+    else { return false;}
+}
+
+//Let certain index positions in matrix we obtain elements on that position
+template <class T>
+T nmMatrixN<T>::GetElements (int row, int col){
+    int position_e = GetPosition(row, col);
+    if ( position_e >= 0){
+        return matrixData[position_e];
+    }
+    else return 0.0;
+}
+
+//Let certain index position on matrix, we obtain its respect position into array
+template <class T>
+int nmMatrixN<T>::GetPosition (int row, int col){
+    if ((row >= 0) && (row < N_Rows) && (col >= 0) && (col < M_Cols)){
+        return row*M_Cols + col;
+    }
+    else return -1;
+}
+
+//This allow to define a matrix element by element or replace a certain element by other
+template <class T>
+bool nmMatrixN<T>::EbyElement (int row, int col, T value){
+    int position_e = GetPosition (row, col);
+    if ( position_e >= 0 ){
+        matrixData [position_e] = value;
+        return true;
+    }
+    else return false;
+}
+
+template <class T>
+int nmMatrixN<T>::GetNumRows(){
+    return N_Rows;
+}
+
+template <class T>
+int nmMatrixN<T>::GetNumCols(){
+    return M_Cols;
 }
 
 #endif
