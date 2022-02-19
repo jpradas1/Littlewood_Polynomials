@@ -32,7 +32,7 @@ class nmMatrixN
 
         bool operator== (const nmMatrixN<T>& nmMatrix);
 
-        //The following functions are defined through 'friend' operator which helps
+        //The following functions are defined through 'friend' pointer which helps
         //to define functions that don't belong this class but need the private parameters
         //and perhaps another instances
 
@@ -331,7 +331,18 @@ nmMatrixN<T> operator* (const nmMatrixN<T>& lMatrix, const T& rscaler){
 
 template <class T>
 bool nmMatrixN<T>::operator== (const nmMatrixN<T>& nmMatrix){
+    //Checking coincidence matrices dimension
+    if((this->N_Rows != nmMatrix.N_Rows) && (this->M_Cols != nmMatrix.M_Cols)){
+        return false;}
+    //Checking coincidence element by element
+    bool bug = true;
+    for(int ii = 0; ii < this->NM_Elements ; ii++){
+        if(this->matrixData[ii] != nmMatrix.matrixData[ii]){
+            bug = false;
+        }
+    }
 
+    return bug;
 }
 
 #endif
