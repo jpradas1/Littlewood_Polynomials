@@ -1,7 +1,7 @@
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
-#include <iostream>
+//#include <iostream>
 
 template <class T>
 class nmMatrixN
@@ -106,6 +106,7 @@ nmMatrixN<T>::nmMatrixN (const nmMatrixN<T>& nmMatrix){
 }
 
 //Destructor doesn't allow memory leak
+template <class T>
 nmMatrixN<T>::~nmMatrixN (){
     if(matrixData != nullptr){
         delete [] matrixData;
@@ -185,7 +186,7 @@ nmMatrixN<T> operator+ (const nmMatrixN<T>& lMatrix, const nmMatrixN<T>& rMatrix
     //int rElements = lRows*lCols;
     //if((lRows == rRows) && (lCols == rCols))
     for(int ii = 0; ii < lElements; ii++){
-        partial_res[ii] = lMatrix[ii] + rMatrix[ii];}
+        partial_res[ii] = lMatrix.matrixData[ii] + rMatrix.matrixData[ii];}
 
     nmMatrixN<T> result(lRows, lCols, partial_res);
     delete[] partial_res;
@@ -200,7 +201,7 @@ nmMatrixN<T> operator+ (const T& lscaler, const nmMatrixN<T>& rMatrix){
     int rElements = rRows*rCols;
     T *partial_res = new T[rElements];
     for(int ii = 0; ii < rElements; ii++){
-        partial_res[ii] = lscaler + rMatrix[ii];}
+        partial_res[ii] = lscaler + rMatrix.matrixData[ii];}
 
     nmMatrixN<T> result(rRows, rCols, partial_res);
     delete[] partial_res;
@@ -214,7 +215,7 @@ nmMatrixN<T> operator+ (const nmMatrixN<T>& lMatrix, const T& rscaler){
     int lElements = lRows*lCols;
     T *partial_res = new T[lElements];
     for(int ii = 0; ii < lElements; ii++){
-        partial_res[ii] = lMatrix[ii] + rscaler;}
+        partial_res[ii] = lMatrix.matrixData[ii] + rscaler;}
 
     nmMatrixN<T> result(lRows, lCols, partial_res);
     delete[] partial_res;
@@ -234,7 +235,7 @@ nmMatrixN<T> operator- (const nmMatrixN<T>& lMatrix, const nmMatrixN<T>& rMatrix
     //int rElements = lRows*lCols;
     //if((lRows == rRows) && (lCols == rCols))
     for(int ii = 0; ii < lElements; ii++){
-        partial_res[ii] = lMatrix[ii] - rMatrix[ii];}
+        partial_res[ii] = lMatrix.matrixData[ii] - rMatrix.matrixData[ii];}
     nmMatrixN<T> result(lRows, lCols, partial_res);
     delete[] partial_res;
     return result;
@@ -248,7 +249,7 @@ nmMatrixN<T> operator- (const T& lscaler, const nmMatrixN<T>& rMatrix){
     int rElements = rRows*rCols;
     T *partial_res = new T[rElements];
     for(int ii = 0; ii < rElements; ii++){
-        partial_res[ii] = lscaler - rMatrix[ii];}
+        partial_res[ii] = lscaler - rMatrix.matrixData[ii];}
 
     nmMatrixN<T> result(rRows, rCols, partial_res);
     delete[] partial_res;
@@ -262,7 +263,7 @@ nmMatrixN<T> operator- (const nmMatrixN<T>& lMatrix, const T& rscaler){
     int lElements = lRows*lCols;
     T *partial_res = new T[lElements];
     for(int ii = 0; ii < lElements; ii++){
-        partial_res[ii] = lMatrix[ii] - rscaler;}
+        partial_res[ii] = lMatrix.matrixData[ii] - rscaler;}
 
     nmMatrixN<T> result(lRows, lCols, partial_res);
     delete[] partial_res;
@@ -282,10 +283,16 @@ nmMatrixN<T> operator* (const nmMatrixN<T>& lMatrix, const nmMatrixN<T>& rMatrix
         T *partial_res = new T[lRows*rCols];
         for(int ii = 0; ii < lRows; ii++){
             for(int jj = 0 ; jj < rCols; jj++){
-                partial_res[ii*rCols+jj] = 0.0;
+                T element_res = 0.0;
                 for(int kk = 0; kk < lCols; kk++){
-                 partial_res[ii*rCols+jj] += lMatrix[ii*lCols+kk] * rMatrix[kk*rCols+ii];
+                    //int leftindex = ii*lCols + kk;
+                    //int rightindex = kk*rCols + jj;
+
+                    element_res += lMatrix.matrixData[ii*lCols+kk] * rMatrix.matrixData[kk*rCols+jj];
                 }
+                //int res_index = ii*rCols+jj;
+
+                partial_res[ii*rCols+jj] = element_res;
             }
         }
 
@@ -304,7 +311,7 @@ nmMatrixN<T> operator* (const T& lscaler, const nmMatrixN<T>& rMatrix){
     int rElements = rRows * rCols;
     T *partial_res = new T[rElements];
     for(int ii = 0 ; ii < rElements; ii++){
-        partial_res[ii] = lscaler * rMatrix[ii];
+        partial_res[ii] = lscaler * rMatrix.matrixData[ii];
     }
 
     nmMatrixN<T> result(rRows, rCols, partial_res);
@@ -319,7 +326,7 @@ nmMatrixN<T> operator* (const nmMatrixN<T>& lMatrix, const T& rscaler){
     int lElements = lRows * lCols;
     T *partial_res = new T[lElements];
     for(int ii = 0 ; ii < lElements; ii++){
-        partial_res[ii] = lMatrix[ii] * rscaler;
+        partial_res[ii] = lMatrix.matrixData[ii] * rscaler;
     }
 
     nmMatrixN<T> result(lRows, lCols, partial_res);
