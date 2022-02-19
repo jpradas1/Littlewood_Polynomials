@@ -8,7 +8,7 @@ class nmMatrixN
 {
     public:
         nmMatrixN ();//Define an array with only one elemente == 0
-        //Define an array with n rows ans m cols where its elements are zeros
+        //Define an array with n rows and m cols where its elements are zeros
         nmMatrixN (int nRows, int mCols);
         //Let an input array, we fill a new T object with the array's original elements
         nmMatrixN (int nRows, int mCols, const T *arrayData);
@@ -27,11 +27,30 @@ class nmMatrixN
 
         int GetNumRows(); int GetNumCols();// Name literally says what they do
 
-        //it's time to determinate basic operation among matrices (+,-,*,=)
+        //it's time to determinate basic operation on matrices (+,-,*,=)
+        //by overloading these operators
+
+        bool operator== (const nmMatrixN<T>& nmMatrix);
+
+        //The following functions are defined through 'friend' operator which helps
+        //to define functions that don't belong this class but need the private parameters
+        //and perhaps another instances
+
+        template <class S> friend nmMatrixN<S> operator+ (const nmMatrixN<S>& lMatrix, const nmMatrixN<S>& rMatrix); //sum on two matrix
+        template <class S> friend nmMatrixN<S> operator+ (const S& lscaler, const nmMatrixN<S>& rMatrix); //scaler + matrix
+        template <class S> friend nmMatrixN<S> operator+ (const nmMatrixN<S>& lMatrix, const S& rscaler); //matrix + scaler
+
+        template <class S> friend nmMatrixN<S> operator- (const nmMatrixN<S>& lMatrix, const nmMatrixN<S>& rMatrix); //subtraction on two matrix
+        template <class S> friend nmMatrixN<S> operator- (const S& lscaler, const nmMatrixN<S>& rMatrix);
+        template <class S> friend nmMatrixN<S> operator- (const nmMatrixN<S>& lMatrix, const S& rscaler);
+
+        template <class S> friend nmMatrixN<S> operator* (const nmMatrixN<S>& lMatrix, const nmMatrixN<S>& rMatrix); //product on two matrix
+        template <class S> friend nmMatrixN<S> operator* (const S& lscaler, const nmMatrixN<S>& rMatrix); //product by scaler lefthandside
+        template <class S> friend nmMatrixN<S> operator* (const nmMatrixN<S>& lMatrix, const S& rscaler); //product by scaler righthandside
 
 
     private:
-        //scanner: let nth row and mth columns of a matrix gives me position into array
+        //scanner: let nth row and mth column of a matrix gives me position into array
         int GetPosition (int row, int col);
     private:
         T *matrixData; //object where it saves information
@@ -57,7 +76,7 @@ nmMatrixN<T>::nmMatrixN (int nRows, int mCols){
     M_Cols = mCols;
     NM_Elements = N_Rows*M_Cols;
     matrixData = new T [NM_Elements];
-    for (unsigned int ii = 0; ii < NM_Elements ; ii++){
+    for (int ii = 0; ii < NM_Elements ; ii++){
         matrixData[ii] = 0.0;
     }
 }
@@ -69,7 +88,7 @@ nmMatrixN<T>::nmMatrixN (int nRows, int mCols, const T *arrayData){
     M_Cols = mCols;
     NM_Elements = N_Rows*M_Cols;
     matrixData = new T [NM_Elements];
-    for (unsigned int ii = 0; ii < NM_Elements ; ii++){
+    for (int ii = 0; ii < NM_Elements ; ii++){
         matrixData[ii] = arrayData[ii];
     }
 }
@@ -81,7 +100,7 @@ nmMatrixN<T>::nmMatrixN (const nmMatrixN<T>& nmMatrix){
     M_Cols = nmMatrix.M_Cols;
     NM_Elements = nmMatrix.NM_Elements;
     matrixData = new T [NM_Elements];
-    for (unsigned int ii = 0; ii < NM_Elements ; ii++){
+    for (int ii = 0; ii < NM_Elements ; ii++){
         matrixData[ii] = nmMatrix.matrixData[ii];
     }
 }
@@ -104,7 +123,7 @@ bool nmMatrixN<T>::resize (int newRows, int newCols){
     delete[] matrixData;
     matrixData = new T [NM_Elements];
     if (matrixData != nullptr){
-        for(unsigned int ii = 0 ; ii < NM_Elements ; ii++){
+        for(int ii = 0 ; ii < NM_Elements ; ii++){
             matrixData[ii] = 0.0; }
 
         return true;
@@ -150,6 +169,169 @@ int nmMatrixN<T>::GetNumRows(){
 template <class T>
 int nmMatrixN<T>::GetNumCols(){
     return M_Cols;
+}
+
+// ####################### Operations on Matrix #######################
+
+// SUM
+template <class T>
+nmMatrixN<T> operator+ (const nmMatrixN<T>& lMatrix, const nmMatrixN<T>& rMatrix){
+    int lRows = lMatrix.N_Rows;
+    int lCols = lMatrix.M_Cols;
+    int lElements = lRows*lCols;
+    T *partial_res = new T[lElements];
+    //int rRows = rMatrix.N_Rows;
+    //int rCols = rMatrix.M_Cols;
+    //int rElements = lRows*lCols;
+    //if((lRows == rRows) && (lCols == rCols))
+    for(int ii = 0; ii < lElements; ii++){
+        partial_res[ii] = lMatrix[ii] + rMatrix[ii];}
+
+    nmMatrixN<T> result(lRows, lCols, partial_res);
+    delete[] partial_res;
+    return result;
+    //else return nmMatrixN<T> result(1,1);
+}
+
+template <class T>
+nmMatrixN<T> operator+ (const T& lscaler, const nmMatrixN<T>& rMatrix){
+    int rRows = rMatrix.N_Rows;
+    int rCols = rMatrix.M_Cols;
+    int rElements = rRows*rCols;
+    T *partial_res = new T[rElements];
+    for(int ii = 0; ii < rElements; ii++){
+        partial_res[ii] = lscaler + rMatrix[ii];}
+
+    nmMatrixN<T> result(rRows, rCols, partial_res);
+    delete[] partial_res;
+    return result;
+}
+
+template <class T>
+nmMatrixN<T> operator+ (const nmMatrixN<T>& lMatrix, const T& rscaler){
+    int lRows = lMatrix.N_Rows;
+    int lCols = lMatrix.M_Cols;
+    int lElements = lRows*lCols;
+    T *partial_res = new T[lElements];
+    for(int ii = 0; ii < lElements; ii++){
+        partial_res[ii] = lMatrix[ii] + rscaler;}
+
+    nmMatrixN<T> result(lRows, lCols, partial_res);
+    delete[] partial_res;
+    return result;
+}
+
+// SUBTRACTION (which is essentially the same)
+
+template <class T>
+nmMatrixN<T> operator- (const nmMatrixN<T>& lMatrix, const nmMatrixN<T>& rMatrix){
+    int lRows = lMatrix.N_Rows;
+    int lCols = lMatrix.M_Cols;
+    int lElements = lRows*lCols;
+    T *partial_res = new T[lElements];
+    //int rRows = rMatrix.N_Rows;
+    //int rCols = rMatrix.M_Cols;
+    //int rElements = lRows*lCols;
+    //if((lRows == rRows) && (lCols == rCols))
+    for(int ii = 0; ii < lElements; ii++){
+        partial_res[ii] = lMatrix[ii] - rMatrix[ii];}
+    nmMatrixN<T> result(lRows, lCols, partial_res);
+    delete[] partial_res;
+    return result;
+    //else return nmMatrixN<T> result(1,1);
+}
+
+template <class T>
+nmMatrixN<T> operator- (const T& lscaler, const nmMatrixN<T>& rMatrix){
+    int rRows = rMatrix.N_Rows;
+    int rCols = rMatrix.M_Cols;
+    int rElements = rRows*rCols;
+    T *partial_res = new T[rElements];
+    for(int ii = 0; ii < rElements; ii++){
+        partial_res[ii] = lscaler - rMatrix[ii];}
+
+    nmMatrixN<T> result(rRows, rCols, partial_res);
+    delete[] partial_res;
+    return result;
+}
+
+template <class T>
+nmMatrixN<T> operator- (const nmMatrixN<T>& lMatrix, const T& rscaler){
+    int lRows = lMatrix.N_Rows;
+    int lCols = lMatrix.M_Cols;
+    int lElements = lRows*lCols;
+    T *partial_res = new T[lElements];
+    for(int ii = 0; ii < lElements; ii++){
+        partial_res[ii] = lMatrix[ii] - rscaler;}
+
+    nmMatrixN<T> result(lRows, lCols, partial_res);
+    delete[] partial_res;
+    return result;
+}
+
+//MULTIPLICATION (maybe longer forward I could implement multiplication by blocking method)
+
+template <class T>
+nmMatrixN<T> operator* (const nmMatrixN<T>& lMatrix, const nmMatrixN<T>& rMatrix){
+    int lRows = lMatrix.N_Rows;
+    int lCols = lMatrix.M_Cols;
+    int rRows = rMatrix.N_Rows;
+    int rCols = rMatrix.M_Cols;
+
+    if (lCols == rRows){
+        T *partial_res = new T[lRows*rCols];
+        for(int ii = 0; ii < lRows; ii++){
+            for(int jj = 0 ; jj < rCols; jj++){
+                partial_res[ii*rCols+jj] = 0.0;
+                for(int kk = 0; kk < lCols; kk++){
+                 partial_res[ii*rCols+jj] += lMatrix[ii*lCols+kk] * rMatrix[kk*rCols+ii];
+                }
+            }
+        }
+
+        nmMatrixN<T> result(lRows, rCols, partial_res);
+        delete[] partial_res;
+        return result;
+    }
+    else {nmMatrixN<T> result(1,1);
+        return result;}
+}
+
+template <class T>
+nmMatrixN<T> operator* (const T& lscaler, const nmMatrixN<T>& rMatrix){
+    int rRows = rMatrix.N_Rows;
+    int rCols = rMatrix.M_Cols;
+    int rElements = rRows * rCols;
+    T *partial_res = new T[rElements];
+    for(int ii = 0 ; ii < rElements; ii++){
+        partial_res[ii] = lscaler * rMatrix[ii];
+    }
+
+    nmMatrixN<T> result(rRows, rCols, partial_res);
+    delete[] partial_res;
+    return result;
+}
+
+template <class T>
+nmMatrixN<T> operator* (const nmMatrixN<T>& lMatrix, const T& rscaler){
+    int lRows = lMatrix.N_Rows;
+    int lCols = lMatrix.M_Cols;
+    int lElements = lRows * lCols;
+    T *partial_res = new T[lElements];
+    for(int ii = 0 ; ii < lElements; ii++){
+        partial_res[ii] = lMatrix[ii] * rscaler;
+    }
+
+    nmMatrixN<T> result(lRows, lCols, partial_res);
+    delete[] partial_res;
+    return result;
+}
+
+//EQUALITY
+
+template <class T>
+bool nmMatrixN<T>::operator== (const nmMatrixN<T>& nmMatrix){
+
 }
 
 #endif
