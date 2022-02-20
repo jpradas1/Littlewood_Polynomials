@@ -43,9 +43,9 @@ int main (){
     Imaggi<double> product = z1 * z2;
     PrintComplex(product, "z1*z2");
 
-    /*std::cout << "Division z1 / z2" << std::endl;
+    std::cout << "Division z1 / z2" << std::endl;
     Imaggi<double> div = z1 / z2;
-    PrintComplex(div, "z1/z2");*/
+    PrintComplex(div, "z1/z2");
 
     std::cout << "Exponentiation z2 ^ 3" << std::endl;
     Imaggi<double> power = z2 ^ 3;
